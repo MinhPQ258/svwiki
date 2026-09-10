@@ -1,28 +1,24 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { supabase } from "@/lib/supabase";
 import Link from "next/link";
 import { Search, Loader2, ArrowLeft, AlertCircle } from "lucide-react";
 import { useSearchParams, useRouter } from "next/navigation";
 
-export default function SearchPage() {
+function SearchContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   
   const initialQuery = searchParams.get("q") || "";
   const categoryFilter = searchParams.get("category") || "";
 
-  // query dùng cho ô input
   const [query, setQuery] = useState(initialQuery);
-  // activeQuery dùng để gọi API thật sự (khi bấm Enter)
   const [activeQuery, setActiveQuery] = useState(initialQuery);
-  
   const [serverResults, setServerResults] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [showErrorPopup, setShowErrorPopup] = useState(false);
 
-  // Gọi API chỉ khi activeQuery hoặc categoryFilter thay đổi (nghĩa là đã submit)
   useEffect(() => {
     const fetchResults = async () => {
       if (!activeQuery.trim() && !categoryFilter) {
@@ -44,7 +40,7 @@ export default function SearchPage() {
         req = req.eq("category", categoryFilter);
       }
       
-      const { data, error } = await req.limit(50); // Tăng limit lên 50 để dễ search local
+      const { data, error } = await req.limit(50);
       
       if (error) {
         console.error("Lỗi tìm kiếm:", error);
@@ -52,7 +48,6 @@ export default function SearchPage() {
         setServerResults(data || []);
         if (data?.length === 0) {
           setShowErrorPopup(true);
-          // Ẩn popup sau 3 giây
           setTimeout(() => setShowErrorPopup(false), 3000);
         }
       }
@@ -62,7 +57,6 @@ export default function SearchPage() {
     fetchResults();
   }, [activeQuery, categoryFilter]);
 
-  // Xử lý khi nhấn nút tìm kiếm hoặc Enter
   const handleSearchSubmit = (e?: React.FormEvent) => {
     if (e) e.preventDefault();
     setActiveQuery(query);
@@ -73,7 +67,6 @@ export default function SearchPage() {
     router.replace(`/search?${newParams.toString()}`, { scroll: false });
   };
 
-  // Search Local (Front-end filtering) dựa trên kết quả đã tải về từ Server
   const filteredResults = serverResults.filter(item => 
     item.title.toLowerCase().includes(query.toLowerCase()) || 
     (item.summary && item.summary.toLowerCase().includes(query.toLowerCase()))
@@ -81,8 +74,6 @@ export default function SearchPage() {
 
   return (
     <div className="w-full animate-fade-in relative pb-20">
-      
-      {/* Popup Lỗi (Toast) */}
       {showErrorPopup && (
         <div className="fixed top-24 left-1/2 -translate-x-1/2 z-50 animate-bounce">
           <div className="bg-red-500/90 backdrop-blur-md text-white px-6 py-3 rounded-full shadow-2xl flex items-center gap-3 border border-red-400">
@@ -181,5 +172,17 @@ export default function SearchPage() {
         </div>
       )}
     </div>
+  );
+}
+
+export default function SearchPage() {
+  return (
+    <Suspense fallback={
+      <div className="flex justify-center py-20">
+        <Loader2 className="animate-spin text-primary w-10 h-10 shrink-0" />
+      </div>
+    }>
+      <SearchContent />
+    </Suspense>
   );
 }
