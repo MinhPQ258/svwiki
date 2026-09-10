@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
 import { Search } from "lucide-react";
+import { getCategoryIcon } from "@/lib/icons";
 
 export const revalidate = 3600; // Revalidate every hour
 
@@ -69,7 +70,7 @@ export default async function Home() {
               className="glass-panel p-4 md:p-5 rounded-xl hover:-translate-y-1 transition-transform group flex flex-col items-center justify-center text-center gap-2"
             >
               <div className="w-12 h-12 md:w-14 md:h-14 rounded-full bg-primary/20 group-hover:bg-primary/40 flex items-center justify-center text-2xl transition-colors">
-                ✨
+                {getCategoryIcon(cat.name)}
               </div>
               <div>
                 <h3 className="font-semibold text-slate-200 capitalize text-sm md:text-base">{cat.name.replace(/_/g, ' ')}</h3>

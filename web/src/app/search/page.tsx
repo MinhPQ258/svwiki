@@ -5,6 +5,7 @@ import { supabase } from "@/lib/supabase";
 import Link from "next/link";
 import { Search, Loader2, ArrowLeft, AlertCircle } from "lucide-react";
 import { useSearchParams, useRouter } from "next/navigation";
+import { getCategoryIcon } from "@/lib/icons";
 
 function SearchContent() {
   const searchParams = useSearchParams();
@@ -143,7 +144,7 @@ function SearchContent() {
                 />
               ) : (
                 <div className="w-16 h-16 shrink-0 rounded bg-slate-800/50 flex items-center justify-center text-2xl">
-                  🌾
+                  {getCategoryIcon(item.category)}
                 </div>
               )}
               <div className="flex-1 min-w-0">

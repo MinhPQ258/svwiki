@@ -88,7 +88,7 @@ async function uploadImageToSupabase(imageUrl: string, title: string): Promise<s
     const { data, error } = await supabase.storage
       .from('wiki-images')
       .upload(filename, buffer, {
-        contentType: response.headers['content-type'],
+        contentType: response.headers['content-type'] as string | undefined,
         upsert: true
       });
       
